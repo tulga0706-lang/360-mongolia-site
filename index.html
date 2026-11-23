@@ -309,6 +309,15 @@ footer .wrap a{color:inherit;text-decoration:underline;text-underline-offset:3px
 .tv-gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .tv-gallery img{aspect-ratio:3/2}
 @media(max-width:820px){.tv-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.tv-intro .tv-art img{aspect-ratio:3/2}}
+
+.tv-gallery img,.camp-photos img{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:1000;background:rgba(14,28,20,.94);display:none;align-items:center;justify-content:center;padding:24px}
+.lb.on{display:flex}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;border:1px solid var(--gold);background:#000}
+.lb button{position:absolute;background:none;border:1px solid var(--gold-soft);color:var(--on-night);width:48px;height:48px;font:28px/1 Georgia,serif;cursor:pointer}
+.lb button:hover{background:var(--gold);color:var(--night)}
+.lb .x{top:16px;right:16px}.lb .p{left:16px;top:50%;margin-top:-24px}.lb .n{right:16px;top:50%;margin-top:-24px}
+.lb .c{position:absolute;bottom:14px;left:0;right:0;text-align:center;color:var(--on-night);font:14px "Source Sans 3",Arial,sans-serif;letter-spacing:.04em;padding:0 70px}
 </style>
 
 </head>
@@ -1305,5 +1314,30 @@ footer .wrap a{color:inherit;text-decoration:underline;text-underline-offset:3px
 </script>
 
 
+<script>
+(function(){
+  var lb=document.createElement("div");lb.className="lb";lb.setAttribute("role","dialog");lb.setAttribute("aria-label","Photo viewer");
+  lb.innerHTML='<button class="x" aria-label="Close">\u00d7</button><button class="p" aria-label="Previous photo">\u2039</button><img alt=""><button class="n" aria-label="Next photo">\u203a</button><div class="c"></div>';
+  document.body.appendChild(lb);
+  var im=lb.querySelector("img"),cap=lb.querySelector(".c"),list=[],i=0;
+  function full(s){return s.replace("images/s/","images/");}
+  function show(k){i=(k+list.length)%list.length;var e=list[i];im.src=full(e.getAttribute("src"));im.alt=e.alt;cap.textContent=e.alt+"  ("+(i+1)+" / "+list.length+")";}
+  function close(){lb.classList.remove("on");im.removeAttribute("src");}
+  document.addEventListener("click",function(e){
+    var t=e.target;
+    if(t.matches&&t.matches(".tv-gallery img,.camp-photos img")){
+      list=[].slice.call(t.parentNode.querySelectorAll("img"));
+      show(list.indexOf(t));lb.classList.add("on");return;}
+    if(!lb.classList.contains("on"))return;
+    if(t.classList.contains("p"))show(i-1);
+    else if(t.classList.contains("n"))show(i+1);
+    else if(t===lb||t.classList.contains("x"))close();
+  });
+  document.addEventListener("keydown",function(e){
+    if(!lb.classList.contains("on"))return;
+    if(e.key==="Escape")close();else if(e.key==="ArrowLeft")show(i-1);else if(e.key==="ArrowRight")show(i+1);
+  });
+})();
+</script>
 </body>
 </html>
